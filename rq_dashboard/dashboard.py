@@ -23,9 +23,12 @@ def authentication_hook():
     """ Allow the parent app to authenticate user's access to the dashboard
         with it's own auth_handler method that must return True or False
     """
-    auth_handler = current_app.extensions['rq-dashboard'].auth_handler
-    if auth_handler and not auth_handler():
+    current_user = current_app.extensions['rq-dashboard'].auth_handler
+    if current_user.is_anonymous():
         abort(401)
+    if current_user.is_authenticated and not current_user.admin:
+        abort(403)
+
 
 
 @dashboard.before_app_first_request
